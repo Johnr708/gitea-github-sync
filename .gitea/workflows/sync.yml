@@ -1,0 +1,65 @@
+name: Sync Gitea and GitHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      direction:
+        description: direction - which way to sync
+        type: choice
+        options: [both, gitea-to-github, github-to-gitea]
+        default: both
+      repo:
+        description: repo - only this repo from the list (empty = all)
+        required: false
+        default: ""
+      branches:
+        description: branches - only these branches, comma separated (empty = all)
+        required: false
+        default: ""
+      tags:
+        description: tags - sync tags too
+        type: boolean
+        default: true
+      dry_run:
+        description: dry_run - only show what would happen, push nothing
+        type: boolean
+        default: false
+      force:
+        description: force - overwrite the target if branches diverged (one-way only, careful)
+        type: boolean
+        default: false
+      create_missing:
+        description: create_missing - create the repo on the other side if missing (private)
+        type: boolean
+        default: true
+  # Uncomment to also run it every night at 03:00:
+  # schedule:
+  #   - cron: "0 3 * * *"
+
+concurrency:
+  group: git-sync
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync
+        env:
+          SYNC_GITEA_URL: ${{ gitea.server_url }}
+          SYNC_GITEA_TOKEN: ${{ secrets.SYNC_GITEA_TOKEN }}
+          SYNC_GITHUB_TOKEN: ${{ secrets.SYNC_GITHUB_TOKEN }}
+          DIRECTION: ${{ inputs.direction || 'both' }}
+          REPO: ${{ inputs.repo }}
+          BRANCHES: ${{ inputs.branches }}
+          TAGS: ${{ inputs.tags }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          FORCE: ${{ inputs.force }}
+          CREATE_MISSING: ${{ inputs.create_missing }}
+          SYNC_REPOS: ${{ vars.SYNC_REPOS }}
+        run: |
+          git config --global user.name git-sync
+          git config --global user.email git-sync@localhost
+          python3 sync.py

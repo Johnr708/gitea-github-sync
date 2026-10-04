@@ -1,0 +1,6 @@
+# Copy this to repos.txt (or paste the lines into a SYNC_REPOS Actions variable).
+# One repo pair per line:   <gitea owner/repo>   <github owner/repo>
+# The names don't have to match. Anything after # is ignored.
+
+alice/dotfiles        alice/dotfiles
+alice/homelab         alice-lab/homelab-config
