@@ -203,7 +203,10 @@ def sync_pair(gitea_full, github_full):
                 args.append(spec)
             r = git(*args, cwd=work, check=False)
             if r.returncode:
-                problems.append(f"push to {dst} failed: {r.stderr.strip()[-300:]}")
+                # keep the server's reason (remote: ...) and the rejected refs, not just git's last line
+                lines = [l.strip() for l in (r.stdout + r.stderr).splitlines()
+                         if l.strip().startswith(("remote:", "!", "error:")) and l.strip() != "remote:"]
+                problems.append(f"push to {dst} failed: " + (" | ".join(lines)[-600:] or r.stderr.strip()[-300:]))
     return actions, problems
 
 

@@ -32,7 +32,9 @@ You need Gitea with Actions enabled and at least one runner (the stock `ubuntu-l
 
 2. Make two tokens:
    - GitHub: a fine-grained token with access to the repos you sync (or "All repositories") and
-     Contents: Read and write. Add Administration: Read and write if it should create missing repos.
+     Contents: Read and write. Add Administration: Read and write if it should create missing repos, and
+     Workflows: Read and write if any synced repo has files in `.github/workflows` (GitHub refuses those
+     pushes otherwise).
      A classic token with the `repo` scope works too.
    - Gitea: Settings, Applications, a token with repository Read and write and user Read
      (plus organization Read and write if some repos live in an org).
